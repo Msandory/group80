@@ -58,7 +58,11 @@ export async function resolveQuery(message, data) {
   }
   if (PRODUCT_INTENT_PATTERN.test(text)) {
     const productQuery = extractProductQuery(text);
-    return mapProductResult(checkProductAvailability(productQuery));
+    const result = checkProductAvailability(productQuery);
+    if (result.success && result.found) return mapProductResult(result);
+    // Fall through — the intent phrase matched but extraction may have
+    // left junk words in the query. Try the customer-name branch, then
+    // the bare-product-name fallback at the end, before giving up.
   }
 
   // 3. Customer-name lookup — find that customer's order(s).
@@ -80,6 +84,15 @@ export async function resolveQuery(message, data) {
         matches: custOrders.map((o) => o.order_id),
       };
     }
+  }
+
+  // 4. Last resort — try the message itself (cleaned of punctuation and
+  // question-y filler) as a product name. Covers a bare product name with
+  // no "do you have" phrasing at all, e.g. just "A4 Exercise Book".
+  const bareProductQuery = extractProductQuery(text);
+  if (bareProductQuery) {
+    const result = checkProductAvailability(bareProductQuery);
+    if (result.success && result.found) return mapProductResult(result);
   }
 
   return {
@@ -109,19 +122,19 @@ function mapProductResult(result) {
   return { reply: result.message, orderId: null, status: "no_match" };
 }
 
-// Strips common stock-question phrasing so "do you have a metal ruler in
-// stock" becomes "a metal ruler", which matches better against product
-// names in checkProductAvailability's substring search. Uses its own
-// global regex (separate from PRODUCT_INTENT_PATTERN, which is reused
+// Strips common question/stock phrasing so "is the a4 exercise book
+// available?" becomes "a4 exercise book", which matches better against
+// product names in checkProductAvailability's substring search. Uses its
+// own global regex (separate from PRODUCT_INTENT_PATTERN, which is reused
 // with .test() and must stay non-global to avoid lastIndex state bugs).
-const PRODUCT_INTENT_PHRASES_GLOBAL =
-  /\b(do you have|is there|in stock|stock|available|availability|sell|carry)\b/gi;
+const FILLER_WORDS_GLOBAL =
+  /\b(do you have|is there|in stock|stock|available|availability|sell|carry|is|are|there|the|a|an|any)\b/gi;
 
 function extractProductQuery(text) {
   return text
-    .replace(PRODUCT_INTENT_PHRASES_GLOBAL, "")
-    .replace(/\b(a|an|the|any)\b/g, "")
+    .replace(FILLER_WORDS_GLOBAL, " ")
     .replace(/[?.!]/g, "")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
