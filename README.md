@@ -56,7 +56,7 @@ resolver pipeline against a handful of sample queries.
 ## Deploying for free
 
 Any static host works since this builds to plain HTML/CSS/JS:
-
+ Team I added this should there be a need to deploy our project to any live enviroment
 - **Vercel** — easiest for a Vite project. Import the GitHub repo, it
   auto-detects Vite, no config needed.
 - **Netlify** — same idea; build command `npm run build`, publish
