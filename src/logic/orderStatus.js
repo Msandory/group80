@@ -1,6 +1,6 @@
 // We import the mock Northstar data.
 // This is where all of our orders are stored.
-import data from "../data/data.json";
+import data from "../data/data.json" with { type: "json" };
 
 /*
   This function handles customer questions about order status.

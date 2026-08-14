@@ -1,5 +1,5 @@
 // Import the mock Northstar product data.
-import data from "../data/data.json";
+import data from "../data/data.json" with { type: "json" };
 
 /*
   This function checks whether a product exists
