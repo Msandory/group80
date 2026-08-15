@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header.jsx";
 import ProductCatalog from "./components/ProductCatalog.jsx";
 import OrdersTable from "./components/OrdersTable.jsx";
+import CreateOrderForm from "./components/CreateOrderForm.jsx";
 import TicketList from "./components/TicketList.jsx";
 import ChatPanel from "./components/ChatPanel.jsx";
+import { restoreFromStorage, getLiveData, addOrder, cancelOrder, addEscalationTicket } from "./logic/store.js";
 import "./styles/tokens.css";
 import "./App.css";
 
@@ -15,10 +17,15 @@ import rawData from "./data/data.json";
 
 const REQUIRED_KEYS = ["product_catalog", "customers", "orders", "support_tickets"];
 
+// Apply any saved orders/tickets from a previous session BEFORE the first
+// render reads data.json, so the very first snapshot already reflects them.
+restoreFromStorage();
+
 export default function App() {
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [highlightedOrderId, setHighlightedOrderId] = useState(null);
+  const [highlightedTicketId, setHighlightedTicketId] = useState(null);
 
   useEffect(() => {
     try {
@@ -26,11 +33,37 @@ export default function App() {
       if (missing.length) {
         throw new Error(`data.json is missing required key(s): ${missing.join(", ")}`);
       }
-      setData(rawData);
+      setData({ ...getLiveData() });
     } catch (err) {
       setLoadError(err.message || "Could not load the dataset.");
     }
   }, []);
+
+  // Re-snapshot the live store into a fresh object so React re-renders.
+  // The store mutates data.json's arrays in place (see logic/store.js) —
+  // this is just what tells React "something changed, repaint".
+  function refresh() {
+    setData({ ...getLiveData() });
+  }
+
+  function handleCreateOrder(draft) {
+    const result = addOrder(draft);
+    if (result.success) refresh();
+    return result;
+  }
+
+  function handleCancelOrder(orderId) {
+    const result = cancelOrder(orderId);
+    if (result.success) refresh();
+    return result;
+  }
+
+  function handleEscalate(escalate, rawMessage) {
+    const ticket = addEscalationTicket(escalate, rawMessage);
+    refresh();
+    setHighlightedTicketId(ticket.ticket_id);
+    return ticket;
+  }
 
   if (loadError) {
     return (
@@ -59,12 +92,22 @@ export default function App() {
             products={data.product_catalog}
             highlightedOrderId={highlightedOrderId}
           />
-          <TicketList tickets={data.support_tickets} customers={data.customers} />
+          <CreateOrderForm
+            customers={data.customers}
+            products={data.product_catalog}
+            onCreateOrder={handleCreateOrder}
+          />
+          <TicketList tickets={data.support_tickets} customers={data.customers} highlightedTicketId={highlightedTicketId} />
         </main>
         <footer>Mock dataset · for prototyping only · data.json</footer>
       </div>
 
-      <ChatPanel data={data} onOrderMatch={setHighlightedOrderId} />
+      <ChatPanel
+        data={data}
+        onOrderMatch={setHighlightedOrderId}
+        onCancelOrder={handleCancelOrder}
+        onEscalate={handleEscalate}
+      />
     </div>
   );
 }

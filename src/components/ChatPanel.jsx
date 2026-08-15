@@ -3,13 +3,21 @@ import { resolveQuery } from "../logic/resolver.js";
 
 const WELCOME = {
   role: "bot",
-  text: "Hi! Ask me about an order (e.g. ORD-20260701-01), a product, or a customer name.",
+  text: "Hi! Ask me about an order (e.g. ORD-20260701-01), a product, or a customer name. You can also say \"cancel order ORD-...\".",
   status: "resolved",
 };
 
+const ORDER_ID_PATTERN = /ORD-\d{8}-\d{2}/i;
+const CANCEL_PATTERN = /\bcancel\b/i;
+
 // A message is retried at most once automatically on a thrown error,
 // then the user gets an explicit retry button — never a silent failure.
-export default function ChatPanel({ data, onOrderMatch }) {
+//
+// `onCancelOrder` and `onEscalate` are optional so this still works if a
+// parent doesn't wire them up: cancel commands just fall through to the
+// normal resolver (which will say "order found" without cancelling), and
+// no-match replies simply won't spawn tickets.
+export default function ChatPanel({ data, onOrderMatch, onCancelOrder, onEscalate }) {
   const [messages, setMessages] = useState([WELCOME]);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
@@ -29,7 +37,37 @@ export default function ChatPanel({ data, onOrderMatch }) {
     setInput("");
     setIsThinking(true);
 
+    // Intercept "cancel order ORD-..." before it ever reaches the (pure,
+    // read-only) resolver — cancelling is a mutation, so it's handled here
+    // via the onCancelOrder callback the parent owns.
+    const orderIdMatch = trimmed.match(ORDER_ID_PATTERN);
+    if (onCancelOrder && CANCEL_PATTERN.test(trimmed) && orderIdMatch) {
+      return runCancel(orderIdMatch[0]);
+    }
+
     await runQuery(trimmed);
+  }
+
+  async function runCancel(orderId) {
+    try {
+      const result = onCancelOrder(orderId);
+      setMessages((m) => [
+        ...m,
+        { role: "bot", text: result.message, status: result.success ? "resolved" : "no_match" },
+      ]);
+      if (result.order) onOrderMatch(result.order.order_id);
+    } catch {
+      setMessages((m) => [
+        ...m,
+        {
+          role: "bot",
+          status: "error",
+          text: "Something went wrong cancelling that order. Try again in a moment.",
+        },
+      ]);
+    } finally {
+      setIsThinking(false);
+    }
   }
 
   async function runQuery(trimmed) {
@@ -38,9 +76,20 @@ export default function ChatPanel({ data, onOrderMatch }) {
       if (!result || typeof result.reply !== "string") {
         throw new Error("Malformed response from resolver.");
       }
-      setMessages((m) => [...m, { role: "bot", ...result }]);
+
+      let displayText = result.reply;
+      let displayStatus = result.status;
+      if (result.escalate && onEscalate) {
+        const ticket = onEscalate(result.escalate, trimmed);
+        if (ticket) {
+          displayText += ` (Logged as ${ticket.ticket_id} for follow-up.)`;
+          displayStatus = "escalated";
+        }
+      }
+
+      setMessages((m) => [...m, { role: "bot", ...result, text: displayText, status: displayStatus }]);
       if (result.orderId) onOrderMatch(result.orderId);
-    } catch (err) {
+    } catch {
       setMessages((m) => [
         ...m,
         {

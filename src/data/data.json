@@ -31,12 +31,12 @@
     { "order_id": "ORD-20260701-01", "customer_id": "CUST-1001", "order_date": "2026-07-01",
       "items": [ { "sku": "EB-001", "qty": 10 }, { "sku": "PN-002", "qty": 2 } ],
       "total": 22.20, "status": "delivered", "carrier": "SendyExpress", "tracking_number": "SNX-88213",
-      "shipped_date": "2026-07-02", "delivered_date": "2026-07-04" },
+      "shipped_date": "2026-08-02", "delivered_date": "2026-07-04" },
 
     { "order_id": "ORD-20260702-02", "customer_id": "CUST-1002", "order_date": "2026-07-02",
       "items": [ { "sku": "RL-003", "qty": 5 }, { "sku": "RB-002", "qty": 3 } ],
       "total": 14.10, "status": "in_transit", "carrier": "G4S Courier", "tracking_number": "G4S-55721",
-      "shipped_date": "2026-07-05", "delivered_date": null },
+      "shipped_date": "2026-08-05", "delivered_date": null },
 
     { "order_id": "ORD-20260703-03", "customer_id": "CUST-1003", "order_date": "2026-07-03",
       "items": [ { "sku": "EB-003", "qty": 4 }, { "sku": "RL-001", "qty": 4 } ],
@@ -46,17 +46,17 @@
     { "order_id": "ORD-20260705-04", "customer_id": "CUST-1004", "order_date": "2026-07-05",
       "items": [ { "sku": "PN-003", "qty": 1 }, { "sku": "RB-001", "qty": 6 } ],
       "total": 8.49, "status": "delayed", "carrier": "Wells Fargo Logistics", "tracking_number": "WFL-10432",
-      "shipped_date": "2026-07-06", "delivered_date": null },
+      "shipped_date": "2026-08-06", "delivered_date": null },
 
     { "order_id": "ORD-20260706-05", "customer_id": "CUST-1005", "order_date": "2026-07-06",
       "items": [ { "sku": "EB-002", "qty": 20 } ],
       "total": 20.00, "status": "shipped", "carrier": "SendyExpress", "tracking_number": "SNX-88994",
-      "shipped_date": "2026-07-07", "delivered_date": null },
+      "shipped_date": "2026-08-07", "delivered_date": null },
 
     { "order_id": "ORD-20260708-06", "customer_id": "CUST-1006", "order_date": "2026-07-08",
       "items": [ { "sku": "RL-002", "qty": 10 }, { "sku": "PN-001", "qty": 15 } ],
       "total": 12.00, "status": "delivered", "carrier": "G4S Courier", "tracking_number": "G4S-56110",
-      "shipped_date": "2026-07-09", "delivered_date": "2026-07-11" },
+      "shipped_date": "2026-08-09", "delivered_date": "2026-07-11" },
 
     { "order_id": "ORD-20260710-07", "customer_id": "CUST-1007", "order_date": "2026-07-10",
       "items": [ { "sku": "RB-003", "qty": 8 }, { "sku": "EB-001", "qty": 6 } ],
@@ -102,14 +102,14 @@
       "type": "order_status", "channel": "chat", "created_at": "2026-07-09T16:20:00Z",
       "subject": "Order status check",
       "message": "Has this shipped yet? I need the exercise books for my kids' school resumption.",
-      "resolution_status": "resolved",
+      "resolution_status": "open",
       "agent_response": "Your order shipped on 2026-07-07 via SendyExpress, tracking SNX-88994." },
 
     { "ticket_id": "TCK-5006", "customer_id": "CUST-1007", "order_id": "ORD-20260710-07",
       "type": "order_status", "channel": "email", "created_at": "2026-07-13T10:05:00Z",
       "subject": "Where is my order? It's been a while",
       "message": "I placed an order for rubbers and exercise books but got no shipping confirmation. Where is my order?",
-      "resolution_status": "resolved",
+      "resolution_status": "escalated",
       "agent_response": "This order was cancelled per your prior request on 2026-07-11. A refund has been issued." },
 
     { "ticket_id": "TCK-5007", "customer_id": "CUST-1008", "order_id": "ORD-20260712-08",

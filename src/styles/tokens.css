@@ -1,17 +1,22 @@
 :root {
-  --paper: #EDEAE2;
-  --ledger-line: #c9c3b4;
-  --ink: #20261f;
-  --chalkboard: #26382c;
-  --chalkboard-light: #324a3a;
-  --ruler-yellow: #e8b514;
+  --paper: #f4f7fb;
+  --paper-strong: #ffffff;
+  --surface: #eef3f9;
+  --surface-strong: #e7edf7;
+  --ledger-line: #d9e1ec;
+  --ink: #172033;
+  --chalkboard: #101827;
+  --chalkboard-light: #1d2940;
+  --ruler-yellow: #f4b740;
   --eraser-pink: #d97a86;
-  --graphite: #4c4c4a;
-  --ok: #3c6e47;
-  --warn: #b9852b;
-  --bad: #a5453f;
-  --muted: #8a8578;
-  --radius: 2px;
+  --graphite: #4c5b73;
+  --ok: #1f9d6a;
+  --warn: #d68a1e;
+  --bad: #d9605c;
+  --muted: #64748b;
+  --accent: #2f6fed;
+  --accent-soft: #eaf1ff;
+  --radius: 12px;
 }
 
 * { box-sizing: border-box; }
@@ -22,10 +27,7 @@ html, body, #root {
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(232, 181, 20, 0.10), transparent 20%),
-    radial-gradient(circle at bottom right, rgba(217, 122, 134, 0.10), transparent 24%),
-    linear-gradient(180deg, #f7f3ee 0%, #efe9e1 100%);
+  background: linear-gradient(180deg, #f6f8fc 0%, #edf2f8 100%);
   color: var(--ink);
   font-family: 'Source Serif 4', Georgia, serif;
   line-height: 1.5;
@@ -44,18 +46,18 @@ body {
 }
 
 .ledger-header {
-  background: linear-gradient(135deg, #1e2a25 0%, #24372f 100%);
+  background: linear-gradient(135deg, #111827 0%, #1f2a3d 100%);
   color: #f2efe6;
-  padding: 30px 24px 24px;
+  padding: 28px 24px 24px;
   position: relative;
   overflow: hidden;
-  border-bottom: 4px solid var(--ruler-yellow);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .ledger-header::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  background: radial-gradient(circle at top left, rgba(47, 111, 237, 0.2), transparent 30%);
   pointer-events: none;
 }
 

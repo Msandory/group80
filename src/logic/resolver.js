@@ -48,21 +48,27 @@ export async function resolveQuery(message, data) {
   // 1. Order lookup — explicit order ID present.
   const orderIdMatch = message.match(ORDER_ID_PATTERN);
   if (orderIdMatch) {
-    return mapOrderResult(getOrderStatus(orderIdMatch[0]));
+    return mapOrderResult(getOrderStatus(orderIdMatch[0]), orderIdMatch[0]);
   }
 
   // 2. Product lookup — a SKU, or language suggesting a stock question.
   const skuMatch = message.match(SKU_PATTERN);
   if (skuMatch) {
-    return mapProductResult(checkProductAvailability(skuMatch[0]));
+    return mapProductResult(checkProductAvailability(skuMatch[0]), skuMatch[0]);
   }
+
+  // Remembers the last product query we tried and failed on, so that if
+  // nothing else matches either, we know *what* to escalate at the end —
+  // see the escalation note below.
+  let lastProductQuery = null;
   if (PRODUCT_INTENT_PATTERN.test(text)) {
     const productQuery = extractProductQuery(text);
     const result = checkProductAvailability(productQuery);
-    if (result.success && result.found) return mapProductResult(result);
+    if (result.success && result.found) return mapProductResult(result, productQuery);
     // Fall through — the intent phrase matched but extraction may have
     // left junk words in the query. Try the customer-name branch, then
     // the bare-product-name fallback at the end, before giving up.
+    lastProductQuery = productQuery;
   }
 
   // 3. Customer-name lookup — find that customer's order(s).
@@ -74,7 +80,7 @@ export async function resolveQuery(message, data) {
       (o) => o.customer_id === customerMatch.customer_id
     );
     if (custOrders.length === 1) {
-      return mapOrderResult(getOrderStatus(custOrders[0].order_id));
+      return mapOrderResult(getOrderStatus(custOrders[0].order_id), custOrders[0].order_id);
     }
     if (custOrders.length > 1) {
       return {
@@ -92,34 +98,67 @@ export async function resolveQuery(message, data) {
   const bareProductQuery = extractProductQuery(text);
   if (bareProductQuery) {
     const result = checkProductAvailability(bareProductQuery);
-    if (result.success && result.found) return mapProductResult(result);
+    if (result.success && result.found) return mapProductResult(result, bareProductQuery);
+    // Deliberately NOT setting lastProductQuery here. This branch runs on
+    // *any* leftover text, including pure noise ("asdkjfh nonsense
+    // query") — extractProductQuery doesn't know the difference between a
+    // mistyped product name and gibberish. Escalating on a miss from this
+    // branch would ticket every unrecognized message, which is the
+    // opposite of "sanitize before escalating".
   }
 
-  return {
+  // Genuinely unrecognized. We only attach `escalate` — which tells the
+  // chat panel to log a support ticket — when there was a real product
+  // signal we couldn't resolve: a SKU (escalated earlier, above) or an
+  // explicit stock-question phrase ("do you have X in stock"). Plain
+  // noise like "asdkjfh nonsense query" has no such signal, so it just
+  // gets the generic no-match reply and no ticket is created. This is the
+  // "sanitize before escalating" filter — only messages that clearly
+  // meant something become tickets.
+  const base = {
     reply:
       "I couldn't match that to an order or product. Try an order ID (e.g. ORD-20260701-01), a product name/SKU, or a customer name.",
     orderId: null,
     status: "no_match",
   };
+  if (lastProductQuery) {
+    base.escalate = { type: "product_availability", query: lastProductQuery };
+  }
+  return base;
 }
 
 // ── Result mappers: translate the logic functions' return shape into ──
 // ── the BotResponse shape the chat UI expects.                       ──
 
-function mapOrderResult(result) {
+function mapOrderResult(result, orderId) {
   if (result.success) {
     return { reply: result.message, orderId: result.orderId, status: "resolved" };
   }
-  return { reply: result.message, orderId: null, status: "no_match" };
+  // An order ID with a clear shape (ORD-YYYYMMDD-NN) that just isn't in
+  // the ledger is exactly the "product is out of stock" case but for
+  // orders — a real, specific miss worth escalating to a ticket.
+  return {
+    reply: result.message,
+    orderId: null,
+    status: "no_match",
+    escalate: { type: "order_status", orderId: (orderId || "").toUpperCase() },
+  };
 }
 
-function mapProductResult(result) {
+function mapProductResult(result, query) {
   if (result.success && result.found) {
     return { reply: result.message, orderId: null, status: "resolved" };
   }
   // success:true + found:false → the catalog was searched but nothing
-  // matched; success:false → bad input. Both read as "no_match" to the UI.
-  return { reply: result.message, orderId: null, status: "no_match" };
+  // matched; success:false → bad input. Both read as "no_match" to the UI,
+  // and both are worth escalating — a customer asking about stock we
+  // don't carry is the exact case this whole flow is for.
+  return {
+    reply: result.message,
+    orderId: null,
+    status: "no_match",
+    escalate: { type: "product_availability", query },
+  };
 }
 
 // Strips common question/stock phrasing so "is the a4 exercise book
