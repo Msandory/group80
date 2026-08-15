@@ -182,9 +182,13 @@ function ChatBubble({ msg, onRetry, onSuggestion }) {
 
   return (
     <div className={`bubble bubble-bot bubble-${status}`}>
-      <p>{msg.text || msg.reply}</p>
+     <p>{msg.text || msg.reply}</p>
 
-      {status === "ambiguous" && Array.isArray(msg.matches) && (
+     <span className={`chat-status chat-status-${status} mono`}>
+      {status.replace("_", " ")}
+     </span>
+
+    {status === "ambiguous" && Array.isArray(msg.matches) && (
         <div className="suggestion-row">
           {msg.matches.map((id) => (
             <button key={id} className="suggestion-chip mono" onClick={() => onSuggestion(id)}>

@@ -565,6 +565,30 @@ footer {
 .bubble-no_match { border: 1px solid var(--warn); }
 .bubble-escalated { border: 1px solid var(--bad); background: rgba(165, 69, 63, 0.06); }
 .bubble-ambiguous { border: 1px solid var(--eraser-pink); }
+.chat-status {
+  display: inline-block;
+  margin-top: 7px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+.chat-status-resolved {
+  color: var(--ok);
+}
+
+.chat-status-no_match {
+  color: var(--warn);
+}
+
+.chat-status-ambiguous {
+  color: var(--eraser-pink);
+}
+
+.chat-status-error {
+  color: var(--bad);
+}
 
 .bubble-thinking { display: flex; gap: 4px; padding: 12px 14px; }
 .bubble-thinking .dot {
