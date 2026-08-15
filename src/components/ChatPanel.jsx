@@ -131,7 +131,7 @@ export default function ChatPanel({ data, onOrderMatch, onCancelOrder, onEscalat
           <div className="chat-head">
             <div className="chat-head-row">
               <span className="live-dot" aria-hidden="true" />
-              <p className="eyebrow">Order-Status Resolver</p>
+              <p className="eyebrow">Order-Status & Stock-Availability Resolver</p>
             </div>
             <h2>Ask the ledger</h2>
           </div>
