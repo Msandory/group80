@@ -1,45 +1,72 @@
-# Northstar Order-Status Ledger — Dashboard + Chatbot
 
-React + Vite frontend for the PLP "Northstar Sprint" assignment: a dashboard
-of the mock stationery-retailer dataset with an order-status resolver
-chatbot docked on the right.
-
-## Run locally
-
-```bash
-npm install
-npm run dev
-```
-
-Opens on http://localhost:5173. VS Code's Live Preview extension isn't
-needed for a Vite project — `npm run dev` gives you hot-reload on save,
-which Live Preview doesn't do for React. Live Preview is really meant for
-static HTML/CSS/JS files without a build step.
-
-## Project structure
-
-```
-src/
-  data/data.json         ← teammate's dataset, drop-in replaceable
-  logic/
-    resolver.js           ← router: small talk → order/product/customer lookup
-    orderStatus.js         ← getOrderStatus(orderId) — real logic, not a stub
-    productAvailability.js ← checkProductAvailability(query) — real logic, not a stub
-    store.js               ← CRUD engine: addOrder, cancelOrder, addEscalationTicket + localStorage
-    tickets.js              ← sanitizes chat text, builds escalation ticket objects
-  components/
-    Header.jsx
-    ProductCatalog.jsx
-    OrdersTable.jsx       ← highlights + scrolls to a card when the bot matches an order
-    CreateOrderForm.jsx    ← manual "Create" — new order via a form
-    TicketList.jsx         ← Order tickets + Product tickets, filterable by type
-    ChatPanel.jsx         ← the chatbot: lookups, "cancel order ORD-..." (Update), auto-escalation (Create)
-  App.jsx                 ← layout shell: dashboard + docked chat sidebar
-  App.css                 ← all styling (ledger/chalkboard theme, ported from index.html)
-scripts/
-  testLogic.js             ← run with `npm run test:logic`
-```
-
+<h1 id="--Northstar-Support-Deflection-MVP">🌟 Northstar Support Deflection MVP - Dashboard + Chatbot</h1>
+<p>A modern, responsive dashboard and integrated chatbot designed to reduce manual support tickets for Northstar Retail Co.</p>
+<p>Built for the <strong>PLP Northstar Sprint</strong>, this Minimum Viable Product (MVP) automates responses to common customer queries (Order Status and Stock Availability), significantly reducing the workload on human support agents.</p>
+<hr />
+<h2 id="--Live-Demo"> Live Demo</h2>
+<p><strong><a href="#">View the Live Deployment on Vercel</a></strong> <em>(Replace this with your actual Vercel URL!)</em></p>
+<hr />
+<h2 id="--Core-Features">✨ Core Features</h2>
+<ul>
+<li>🤖 <strong>Intelligent Support Chatbot:</strong> Automatically answers questions regarding order statuses and product availability.</li>
+<li>🔍 <strong>Smart Lookups:</strong> Resolves ambiguous queries by customer name (e.g., &quot;Amina Otieno&quot;) and provides intuitive suggestion chips.</li>
+<li>🎫 <strong>Auto-Escalation Ticketing:</strong> If a product is out of stock or an order is missing, the bot automatically generates and logs an escalation ticket in the dashboard.</li>
+<li>🔄 <strong>Smart Deduping:</strong> Prevents spam by updating existing tickets for repeated queries instead of creating duplicates.</li>
+<li>🛠️ <strong>Self-Service Actions:</strong> Allows customers to cancel eligible orders directly through chat commands.</li>
+<li>💾 <strong>Local Persistence:</strong> Uses <code>localStorage</code> to ensure new orders and tickets survive page refreshes.</li>
+</ul>
+<hr />
+<h2 id="---Tech-Stack">🛠️ Tech Stack</h2>
+<ul>
+<li><strong>Framework:</strong> React 19 + Vite</li>
+<li><strong>Styling:</strong> Custom CSS (Ledger/Chalkboard Theme)</li>
+<li><strong>Routing/Logic:</strong> Custom Vanilla JS pattern matching (no external NLP dependencies)</li>
+<li><strong>Data Layer:</strong> Static JSON (<code>src/data/data.json</code>) + Browser <code>localStorage</code></li>
+</ul>
+<hr />
+<h2 id="--Getting-Started--Local-Development-">💻 Getting Started (Local Development)</h2>
+<p>To run this project locally on your machine:</p>
+<ol>
+<li><strong>Clone the repository</strong> (if you haven't already).</li>
+<li><strong>Install dependencies:</strong>
+<pre><code class="language-bash">npm install
+</code></pre>
+</li>
+<li><strong>Start the development server:</strong>
+<pre><code class="language-bash">npm run dev
+</code></pre>
+</li>
+<li>Open your browser and navigate to <code>http://localhost:5173</code>.</li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> Hot-reloading is enabled by default via Vite. Any changes made to the React components or logic files will reflect instantly in the browser.</p>
+</blockquote>
+<hr />
+<h2 id="--Testing-the-Logic">🧪 Testing the Logic</h2>
+<p>The core routing logic (<code>resolveQuery</code>) checks for small talk, order IDs, product names, and customer names.<br />
+To sanity-check the logic functions and the full resolver pipeline against sample queries, run:</p>
+<pre><code class="language-bash">npm run test:logic
+</code></pre>
+<hr />
+<h2 id="--Project-Structure">📂 Project Structure</h2>
+<pre><code class="language-text">src/
+├── data/
+│   └── data.json              # Mock dataset (drop-in replaceable)
+├── logic/
+│   ├── resolver.js            # Chat router (small talk → lookups)
+│   ├── orderStatus.js         # Order status retrieval logic
+│   ├── productAvailability.js # Stock availability logic
+│   ├── store.js               # CRUD engine (localStorage management)
+│   └── tickets.js             # Chat sanitization &amp; ticket generation
+├── components/
+│   ├── ChatPanel.jsx          # Chatbot interface &amp; command handling
+│   ├── CreateOrderForm.jsx    # Manual order creation form
+│   ├── OrdersTable.jsx        # Data table with auto-scroll highlighting
+│   ├── ProductCatalog.jsx     # Visual product list
+│   └── TicketList.jsx         # Escalation tickets view
+├── App.jsx                    # Main layout shell
+└── App.css                    # Global ledger/chalkboard styling
+</code></pre>
 ## The logic contract
 
 `resolveQuery(message, data)` in `src/logic/resolver.js` is what the chat
@@ -81,16 +108,14 @@ Steps 1–4 and 12 are also covered non-interactively by `npm run test:logic`
 same logic live through the actual chat UI, plus the two write operations
 (Create, Update) that only exist at the UI/store layer.
 
-## Deploying for free
+<hr />
+<h2 id="--Deployment">🌍 Deployment</h2>
+<p>This project is fully optimized for zero-config deployments.</p>
+<p>The easiest way to host this application is via <strong>Vercel</strong>:</p>
+<ol>
+<li>Push your code to a GitHub repository.</li>
+<li>Import the repository into your Vercel dashboard.</li>
+<li>Vercel will automatically detect the Vite framework and build the <code>dist</code> folder.</li>
+</ol>
+<p>Alternatively, this builds to plain HTML/CSS/JS (<code>npm run build</code>) and can be hosted on any static provider like Netlify or GitHub Pages.</p>
 
-Any static host works since this builds to plain HTML/CSS/JS:
- Team I added this should there be a need to deploy our project to any live enviroment
-- **Vercel** — easiest for a Vite project. Import the GitHub repo, it
-  auto-detects Vite, no config needed.
-- **Netlify** — same idea; build command `npm run build`, publish
-  directory `dist`.
-- **GitHub Pages** — works too, but needs a `base` path set in
-  `vite.config.js` if the repo isn't served from the domain root.
-
-Recommend Vercel or Netlify for this project — zero-config for Vite and
-you get a live URL as soon as you connect the repo.
