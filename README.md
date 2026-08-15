@@ -4,7 +4,7 @@
 <p>Built for the <strong>PLP Northstar Sprint</strong>, this Minimum Viable Product (MVP) automates responses to common customer queries (Order Status and Stock Availability), significantly reducing the workload on human support agents.</p>
 <hr />
 <h2 id="--Live-Demo"> Live Demo</h2>
-<p><strong><a href="#">View the Live Deployment on Vercel</a></strong> <em>(Replace this with your actual Vercel URL!)</em></p>
+<p><strong><a href="#">View the Live Deployment on Vercel</a></strong> <em>https://northstar-supportsystem.vercel.app/</em></p>
 <hr />
 <h2 id="--Core-Features">✨ Core Features</h2>
 <ul>
